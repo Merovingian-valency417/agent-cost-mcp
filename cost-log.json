@@ -1,0 +1,27 @@
+{
+  "entries": [
+    {"timestamp": "2026-03-25T09:15:00Z", "model": "claude-sonnet-4-6", "tokens_in": 2400, "tokens_out": 1800, "cost_usd": 0.0342, "task": "code review"},
+    {"timestamp": "2026-03-25T10:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 4200, "tokens_out": 3100, "cost_usd": 0.0591, "task": "refactor auth module"},
+    {"timestamp": "2026-03-25T14:00:00Z", "model": "gpt-5.4", "tokens_in": 1800, "tokens_out": 1200, "cost_usd": 0.0165, "task": "summarize meeting notes"},
+    {"timestamp": "2026-03-25T16:45:00Z", "model": "claude-sonnet-4-6", "tokens_in": 8500, "tokens_out": 6200, "cost_usd": 0.1185, "task": "architecture design"},
+    {"timestamp": "2026-03-26T08:00:00Z", "model": "gpt-5.1", "tokens_in": 1200, "tokens_out": 600, "cost_usd": 0.0022, "task": "quick question"},
+    {"timestamp": "2026-03-26T09:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 5600, "tokens_out": 4100, "cost_usd": 0.0783, "task": "debug API endpoint"},
+    {"timestamp": "2026-03-26T11:15:00Z", "model": "claude-sonnet-4-6", "tokens_in": 3200, "tokens_out": 2400, "cost_usd": 0.0456, "task": "write unit tests"},
+    {"timestamp": "2026-03-26T13:00:00Z", "model": "deepseek-v3", "tokens_in": 2000, "tokens_out": 1500, "cost_usd": 0.0022, "task": "translate error messages"},
+    {"timestamp": "2026-03-26T15:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 12000, "tokens_out": 8500, "cost_usd": 0.1635, "task": "full codebase analysis"},
+    {"timestamp": "2026-03-26T17:00:00Z", "model": "gpt-5.4", "tokens_in": 3500, "tokens_out": 2200, "cost_usd": 0.0308, "task": "generate README"},
+    {"timestamp": "2026-03-27T08:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 4800, "tokens_out": 3600, "cost_usd": 0.0684, "task": "PR review"},
+    {"timestamp": "2026-03-27T09:45:00Z", "model": "claude-sonnet-4-6", "tokens_in": 6200, "tokens_out": 4500, "cost_usd": 0.0861, "task": "implement cost tracker MCP"},
+    {"timestamp": "2026-03-27T11:00:00Z", "model": "gpt-5.4", "tokens_in": 2100, "tokens_out": 1400, "cost_usd": 0.0193, "task": "draft blog post"},
+    {"timestamp": "2026-03-27T12:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 9800, "tokens_out": 7200, "cost_usd": 0.1374, "task": "build dashboard"},
+    {"timestamp": "2026-03-27T14:00:00Z", "model": "deepseek-v3", "tokens_in": 3000, "tokens_out": 2200, "cost_usd": 0.0032, "task": "simple formatting"},
+    {"timestamp": "2026-03-27T15:15:00Z", "model": "claude-sonnet-4-6", "tokens_in": 7500, "tokens_out": 5800, "cost_usd": 0.1095, "task": "OpenClaw skill development"},
+    {"timestamp": "2026-03-27T16:30:00Z", "model": "gpt-5.1", "tokens_in": 800, "tokens_out": 400, "cost_usd": 0.0014, "task": "check weather"},
+    {"timestamp": "2026-03-27T17:00:00Z", "model": "claude-sonnet-4-6", "tokens_in": 5100, "tokens_out": 3800, "cost_usd": 0.0723, "task": "fix deployment config"}
+  ],
+  "budget": {
+    "daily_limit": 5.00,
+    "monthly_limit": 50.00,
+    "alert_threshold": 0.80
+  }
+}
