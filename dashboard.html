@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Cost // Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #060a13;
+            --bg-primary: #0b1120;
+            --bg-panel: #111a2e;
+            --bg-sidebar: #0d1425;
+            --bg-hover: #162035;
+            --accent-orange: #ff6b2b;
+            --accent-amber: #f5a623;
+            --accent-cyan: #22d3ee;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-purple: #a78bfa;
+            --text-primary: #e2e8f0;
+            --text-secondary: #8892a8;
+            --text-dim: #3e4a63;
+            --border: #1a2540;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'IBM Plex Mono', monospace; background: var(--bg-deep); color: var(--text-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; height: 48px; background: var(--bg-primary);
+            border-bottom: 1px solid var(--border); flex-shrink: 0;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+        .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1rem; letter-spacing: 0.12em; }
+        .logo span { color: var(--accent-orange); }
+        .topbar-badge { padding: 2px 10px; border: 1px solid var(--border); font-size: 0.6rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; }
+        .topbar-right { display: flex; align-items: center; gap: 18px; font-size: 0.7rem; color: var(--text-secondary); }
+        .status-live { display: flex; align-items: center; gap: 6px; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+        .main { display: flex; flex: 1; overflow: hidden; }
+
+        .sidebar {
+            width: 240px; flex-shrink: 0; background: var(--bg-sidebar);
+            border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
+        }
+        .sidebar-header { padding: 14px 16px 10px; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        .sidebar-list { flex: 1; overflow-y: auto; }
+        .sidebar-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.02);
+            transition: background 0.15s; font-size: 0.8rem;
+        }
+        .sidebar-item:hover { background: var(--bg-hover); }
+        .sidebar-item.active { background: var(--bg-hover); border-left: 3px solid var(--accent-orange); }
+        .sidebar-item .name { color: var(--text-primary); }
+        .sidebar-item .cost { font-size: 0.65rem; color: var(--accent-amber); }
+        .sidebar-summary { padding: 14px 16px; border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--text-dim); }
+
+        .content { flex: 1; overflow-y: auto; padding: 16px 16px 40px; display: flex; flex-direction: column; gap: 14px; }
+
+        .kpi-strip { display: flex; gap: 12px; flex-shrink: 0; }
+        .kpi {
+            flex: 1; background: var(--bg-panel); border: 1px solid var(--border);
+            padding: 14px 16px; position: relative; min-width: 0;
+        }
+        .kpi-label { font-size: 0.6rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+        .kpi-value { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--accent-orange); }
+        .kpi-sub { font-size: 0.65rem; color: var(--text-secondary); margin-top: 4px; }
+
+        .panel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .panel {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            padding: 14px; min-height: 0; position: relative; display: flex; flex-direction: column;
+        }
+        .panel-full { grid-column: 1 / -1; }
+        .panel-title {
+            font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 500;
+            color: var(--accent-amber); letter-spacing: 1.5px; text-transform: uppercase;
+            margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+        }
+        .panel-title .tag { float: right; font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text-dim); }
+        .chart-container { flex: 1; min-height: 220px; }
+
+        .budget-bar-wrap { margin-top: 8px; }
+        .budget-label { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .budget-bar { height: 8px; background: var(--bg-deep); border-radius: 4px; overflow: hidden; }
+        .budget-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .log-table th { text-align: left; padding: 8px 10px; color: var(--accent-amber); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); background: rgba(245,166,35,0.03); }
+        .log-table td { padding: 7px 10px; color: var(--text-secondary); border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .log-table tr:hover td { background: var(--bg-hover); }
+
+        .footer { padding: 10px 20px; text-align: center; font-size: 0.6rem; color: var(--text-dim); border-top: 1px solid var(--border); flex-shrink: 0; }
+        .footer a { color: var(--accent-orange); text-decoration: none; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+        .empty-state h2 { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 12px; }
+        .empty-state p { font-size: 0.8rem; line-height: 1.6; }
+        .empty-state code { background: var(--bg-panel); padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">AGENT<span>COST</span></div>
+            <div class="topbar-badge">MCP Cost Tracker</div>
+        </div>
+        <div class="topbar-right">
+            <span id="topbar-info">Loading...</span>
+            <div class="status-live"><div class="dot"></div> TRACKING</div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="sidebar">
+            <div class="sidebar-header">Models Used</div>
+            <div class="sidebar-list" id="sidebar-list"></div>
+            <div class="sidebar-summary" id="sidebar-summary"></div>
+        </div>
+
+        <div class="content" id="content"></div>
+    </div>
+
+    <div class="footer">
+        AGENT COST MCP v0.1.0 // Built by Ha Le // University of Central Florida //
+        <a href="https://github.com/vanthienha199/agent-cost-mcp">GitHub</a>
+    </div>
+
+    <script>
+    let DATA = null;
+    let charts = {};
+
+    // Embedded sample data for demo/screenshot (replace with fetch in production)
+    const SAMPLE_DATA = {
+      "entries": [
+        {"timestamp": "2026-03-21T09:15:00Z", "model": "claude-sonnet-4-6", "tokens_in": 2400, "tokens_out": 1800, "cost_usd": 0.0342, "task": "code review"},
+        {"timestamp": "2026-03-21T14:00:00Z", "model": "gpt-5.4", "tokens_in": 1800, "tokens_out": 1200, "cost_usd": 0.0165, "task": "summarize meeting notes"},
+        {"timestamp": "2026-03-21T16:45:00Z", "model": "claude-sonnet-4-6", "tokens_in": 8500, "tokens_out": 6200, "cost_usd": 0.1185, "task": "architecture design"},
+        {"timestamp": "2026-03-22T08:00:00Z", "model": "gpt-5.1", "tokens_in": 1200, "tokens_out": 600, "cost_usd": 0.0022, "task": "quick question"},
+        {"timestamp": "2026-03-22T09:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 5600, "tokens_out": 4100, "cost_usd": 0.0783, "task": "debug API endpoint"},
+        {"timestamp": "2026-03-22T13:00:00Z", "model": "deepseek-v3", "tokens_in": 2000, "tokens_out": 1500, "cost_usd": 0.0022, "task": "translate error messages"},
+        {"timestamp": "2026-03-23T10:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 4200, "tokens_out": 3100, "cost_usd": 0.0591, "task": "refactor auth module"},
+        {"timestamp": "2026-03-23T11:15:00Z", "model": "claude-sonnet-4-6", "tokens_in": 3200, "tokens_out": 2400, "cost_usd": 0.0456, "task": "write unit tests"},
+        {"timestamp": "2026-03-23T15:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 12000, "tokens_out": 8500, "cost_usd": 0.1635, "task": "full codebase analysis"},
+        {"timestamp": "2026-03-24T08:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 4800, "tokens_out": 3600, "cost_usd": 0.0684, "task": "PR review"},
+        {"timestamp": "2026-03-24T09:45:00Z", "model": "claude-opus-4-6", "tokens_in": 6200, "tokens_out": 4500, "cost_usd": 0.4305, "task": "complex system design"},
+        {"timestamp": "2026-03-24T17:00:00Z", "model": "gpt-5.4", "tokens_in": 3500, "tokens_out": 2200, "cost_usd": 0.0308, "task": "generate README"},
+        {"timestamp": "2026-03-25T09:00:00Z", "model": "claude-sonnet-4-6", "tokens_in": 9800, "tokens_out": 7200, "cost_usd": 0.1374, "task": "build dashboard"},
+        {"timestamp": "2026-03-25T11:00:00Z", "model": "gpt-5.4", "tokens_in": 2100, "tokens_out": 1400, "cost_usd": 0.0193, "task": "draft blog post"},
+        {"timestamp": "2026-03-25T14:00:00Z", "model": "deepseek-v3", "tokens_in": 3000, "tokens_out": 2200, "cost_usd": 0.0032, "task": "simple formatting"},
+        {"timestamp": "2026-03-26T08:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 7500, "tokens_out": 5800, "cost_usd": 0.1095, "task": "OpenClaw skill development"},
+        {"timestamp": "2026-03-26T12:00:00Z", "model": "claude-opus-4-6", "tokens_in": 3200, "tokens_out": 2800, "cost_usd": 0.258, "task": "research paper analysis"},
+        {"timestamp": "2026-03-26T15:15:00Z", "model": "gpt-5.1", "tokens_in": 800, "tokens_out": 400, "cost_usd": 0.0014, "task": "check weather"},
+        {"timestamp": "2026-03-26T17:00:00Z", "model": "claude-sonnet-4-6", "tokens_in": 5100, "tokens_out": 3800, "cost_usd": 0.0723, "task": "fix deployment config"},
+        {"timestamp": "2026-03-27T08:15:00Z", "model": "claude-sonnet-4-6", "tokens_in": 6800, "tokens_out": 5200, "cost_usd": 0.0984, "task": "implement MCP server"},
+        {"timestamp": "2026-03-27T10:30:00Z", "model": "claude-opus-4-6", "tokens_in": 4500, "tokens_out": 3200, "cost_usd": 0.3075, "task": "agent orchestration design"},
+        {"timestamp": "2026-03-27T12:45:00Z", "model": "gpt-5.4", "tokens_in": 2800, "tokens_out": 1900, "cost_usd": 0.026, "task": "social media drafts"},
+        {"timestamp": "2026-03-27T14:00:00Z", "model": "deepseek-v3", "tokens_in": 4500, "tokens_out": 3200, "cost_usd": 0.0047, "task": "data cleaning script"},
+        {"timestamp": "2026-03-27T15:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 11200, "tokens_out": 8100, "cost_usd": 0.1551, "task": "full project scaffold"},
+        {"timestamp": "2026-03-27T17:00:00Z", "model": "gemini-2.5-flash", "tokens_in": 3800, "tokens_out": 2600, "cost_usd": 0.0021, "task": "quick lookup"},
+        {"timestamp": "2026-03-27T18:30:00Z", "model": "claude-sonnet-4-6", "tokens_in": 8900, "tokens_out": 6700, "cost_usd": 0.1272, "task": "cost dashboard UI"}
+      ],
+      "budget": {
+        "daily_limit": 5.00,
+        "monthly_limit": 50.00,
+        "alert_threshold": 0.80
+      }
+    };
+
+    async function init() {
+        // Try to fetch live data, fall back to embedded sample
+        try {
+            const resp = await fetch('cost-log.json');
+            DATA = await resp.json();
+            if (!DATA || !DATA.entries || DATA.entries.length === 0) DATA = SAMPLE_DATA;
+        } catch(e) {
+            DATA = SAMPLE_DATA;
+        }
+
+        if (!DATA || !DATA.entries || DATA.entries.length === 0) {
+            showEmpty();
+            return;
+        }
+
+        renderSidebar();
+        renderDashboard();
+    }
+
+    function showEmpty() {
+        document.getElementById('topbar-info').textContent = 'NO DATA YET';
+        document.getElementById('sidebar-list').innerHTML = '<div style="padding:16px;color:var(--text-dim);font-size:0.75rem">No models tracked yet</div>';
+        document.getElementById('content').innerHTML = `
+            <div class="empty-state">
+                <h2>No Spending Data Yet</h2>
+                <p>Start using the MCP server to log costs.<br><br>
+                In Claude Code or Cursor, call:<br>
+                <code>log_cost(model="claude-sonnet-4-6", tokens_in=1500, tokens_out=800, task="code review")</code><br><br>
+                The dashboard will update automatically.</p>
+            </div>`;
+    }
+
+    function renderSidebar() {
+        const models = {};
+        DATA.entries.forEach(e => {
+            if (!models[e.model]) models[e.model] = { cost: 0, count: 0 };
+            models[e.model].cost += e.cost_usd;
+            models[e.model].count++;
+        });
+
+        const sorted = Object.entries(models).sort((a, b) => b[1].cost - a[1].cost);
+        const list = document.getElementById('sidebar-list');
+        list.innerHTML = sorted.map(([m, d]) =>
+            `<div class="sidebar-item"><span class="name">${m}</span><span class="cost">$${d.cost.toFixed(2)}</span></div>`
+        ).join('');
+
+        const total = DATA.entries.reduce((s, e) => s + e.cost_usd, 0);
+        document.getElementById('sidebar-summary').textContent = `Total: $${total.toFixed(2)} // ${DATA.entries.length} msgs`;
+        document.getElementById('topbar-info').textContent = `${DATA.entries.length} MESSAGES // $${total.toFixed(2)} SPENT`;
+    }
+
+    function renderDashboard() {
+        const entries = DATA.entries;
+        const total = entries.reduce((s, e) => s + e.cost_usd, 0);
+        const totalTokens = entries.reduce((s, e) => s + e.tokens_in + e.tokens_out, 0);
+        const avgCost = total / entries.length;
+        const budget = DATA.budget || { daily_limit: 10, monthly_limit: 100 };
+
+        // Today's cost
+        const today = new Date().toISOString().slice(0, 10);
+        const todayEntries = entries.filter(e => e.timestamp.startsWith(today));
+        const todayCost = todayEntries.reduce((s, e) => s + e.cost_usd, 0);
+
+        // This month's cost
+        const month = new Date().toISOString().slice(0, 7);
+        const monthEntries = entries.filter(e => e.timestamp.startsWith(month));
+        const monthCost = monthEntries.reduce((s, e) => s + e.cost_usd, 0);
+
+        const dailyPct = Math.min((todayCost / budget.daily_limit) * 100, 100);
+        const monthlyPct = Math.min((monthCost / budget.monthly_limit) * 100, 100);
+        const dailyColor = dailyPct > 80 ? 'var(--accent-red)' : dailyPct > 50 ? 'var(--accent-amber)' : 'var(--accent-green)';
+        const monthlyColor = monthlyPct > 80 ? 'var(--accent-red)' : monthlyPct > 50 ? 'var(--accent-amber)' : 'var(--accent-green)';
+
+        const content = document.getElementById('content');
+        content.innerHTML = `
+            <div class="kpi-strip">
+                <div class="kpi"><div class="kpi-label">Today</div><div class="kpi-value">$${todayCost.toFixed(2)}</div><div class="kpi-sub">${todayEntries.length} messages</div></div>
+                <div class="kpi"><div class="kpi-label">This Month</div><div class="kpi-value">$${monthCost.toFixed(2)}</div><div class="kpi-sub">${monthEntries.length} messages</div></div>
+                <div class="kpi"><div class="kpi-label">All Time</div><div class="kpi-value">$${total.toFixed(2)}</div><div class="kpi-sub">${entries.length} messages</div></div>
+                <div class="kpi"><div class="kpi-label">Tokens</div><div class="kpi-value">${(totalTokens/1000).toFixed(0)}K</div><div class="kpi-sub">avg $${avgCost.toFixed(4)}/msg</div></div>
+            </div>
+
+            <div class="panel-grid">
+                <div class="panel">
+                    <div class="panel-title">Budget <span class="tag">daily + monthly</span></div>
+                    <div class="budget-bar-wrap">
+                        <div class="budget-label"><span>Daily: $${todayCost.toFixed(2)} / $${budget.daily_limit.toFixed(2)}</span><span>${dailyPct.toFixed(0)}%</span></div>
+                        <div class="budget-bar"><div class="budget-fill" style="width:${dailyPct}%;background:${dailyColor}"></div></div>
+                    </div>
+                    <div class="budget-bar-wrap" style="margin-top:14px">
+                        <div class="budget-label"><span>Monthly: $${monthCost.toFixed(2)} / $${budget.monthly_limit.toFixed(2)}</span><span>${monthlyPct.toFixed(0)}%</span></div>
+                        <div class="budget-bar"><div class="budget-fill" style="width:${monthlyPct}%;background:${monthlyColor}"></div></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">Cost by Model <span class="tag">breakdown</span></div>
+                    <div class="chart-container" id="chart-model"></div>
+                </div>
+            </div>
+
+            <div class="panel-grid">
+                <div class="panel panel-full">
+                    <div class="panel-title">Daily Spending Trend <span class="tag">last 14 days</span></div>
+                    <div class="chart-container" id="chart-trend"></div>
+                </div>
+            </div>
+
+            <div class="panel-grid">
+                <div class="panel panel-full">
+                    <div class="panel-title">Recent Activity <span class="tag">last 20 messages</span></div>
+                    <table class="log-table">
+                        <thead><tr><th>Time</th><th>Model</th><th>Tokens</th><th>Cost</th><th>Task</th></tr></thead>
+                        <tbody>${entries.slice(-20).reverse().map(e => `
+                            <tr>
+                                <td>${new Date(e.timestamp).toLocaleString('en-US', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+                                <td style="color:var(--accent-cyan)">${e.model}</td>
+                                <td>${(e.tokens_in+e.tokens_out).toLocaleString()}</td>
+                                <td style="color:var(--accent-orange);font-weight:600">$${e.cost_usd.toFixed(4)}</td>
+                                <td>${e.task || '—'}</td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+
+        setTimeout(() => {
+            renderModelChart(entries);
+            renderTrendChart(entries);
+        }, 50);
+    }
+
+    function renderModelChart(entries) {
+        const el = document.getElementById('chart-model');
+        if (!el) return;
+        const chart = echarts.init(el);
+        charts['model'] = chart;
+
+        const models = {};
+        entries.forEach(e => { models[e.model] = (models[e.model] || 0) + e.cost_usd; });
+
+        const data = Object.entries(models).map(([k, v]) => ({ name: k, value: Math.round(v * 10000) / 10000 }));
+        const colors = ['#ff6b2b', '#f5a623', '#22d3ee', '#34d399', '#a78bfa', '#f87171'];
+
+        chart.setOption({
+            tooltip: { trigger: 'item', formatter: '{b}: ${c} ({d}%)' },
+            series: [{
+                type: 'pie', radius: ['40%', '70%'], center: ['50%', '50%'],
+                data: data,
+                itemStyle: { borderColor: '#111a2e', borderWidth: 2 },
+                label: { color: '#8892a8', fontSize: 11 },
+                labelLine: { lineStyle: { color: '#3e4a63' } },
+                color: colors,
+            }]
+        });
+        window.addEventListener('resize', () => chart.resize());
+    }
+
+    function renderTrendChart(entries) {
+        const el = document.getElementById('chart-trend');
+        if (!el) return;
+        const chart = echarts.init(el);
+        charts['trend'] = chart;
+
+        const daily = {};
+        const now = Date.now();
+        for (let i = 13; i >= 0; i--) {
+            const d = new Date(now - i * 86400000).toISOString().slice(0, 10);
+            daily[d] = 0;
+        }
+        entries.forEach(e => {
+            const d = e.timestamp.slice(0, 10);
+            if (d in daily) daily[d] += e.cost_usd;
+        });
+
+        const dates = Object.keys(daily).sort();
+        const values = dates.map(d => Math.round(daily[d] * 10000) / 10000);
+
+        chart.setOption({
+            tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValueLabel + '<br/>$' + p[0].value.toFixed(4); } },
+            grid: { left: 50, right: 20, top: 15, bottom: 30 },
+            xAxis: { type: 'category', data: dates.map(d => d.slice(5)), axisLabel: { color: '#8892a8', fontSize: 10 }, axisTick: { show: false }, axisLine: { lineStyle: { color: '#1a2540' } } },
+            yAxis: { type: 'value', axisLabel: { formatter: '${value}', color: '#8892a8', fontSize: 10 }, splitLine: { lineStyle: { color: '#1a2540' } } },
+            series: [{
+                type: 'bar', data: values,
+                itemStyle: { color: function(p) { return p.value > 5 ? '#f87171' : p.value > 2 ? '#f5a623' : '#ff6b2b'; }, borderRadius: [3, 3, 0, 0] },
+                barWidth: '60%'
+            }]
+        });
+        window.addEventListener('resize', () => chart.resize());
+    }
+
+    init();
+    // Auto-refresh every 30 seconds
+    setInterval(init, 30000);
+    </script>
+</body>
+</html>
